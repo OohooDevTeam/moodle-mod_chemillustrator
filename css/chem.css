@@ -1,3 +1,16 @@
+/* ************************************************************************
+ * *                         ChemIllustrator                             **
+ * ************************************************************************
+ * @package     mod                                                      **
+ * @subpackage  chemillustrator                                          **
+ * @name        ChemIllustrator                                          **
+ * @copyright   oohoo.biz                                                **
+ * @link        http://oohoo.biz                                         **
+ * @author      Braedan Jongerius <jongeriu@ualberta.ca> 2012            **
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later **
+ * ************************************************************************
+ * ************************************************************************/
+
 #toolbar {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -18,19 +31,15 @@
     width: 32px;
     height: 32px;
 }
-.sub_menu {
-    position:absolute;
-    display:none;
-}
 .sub_tool {
     background-image: url('../icons/menu.png');
     background-repeat: no-repeat;
     background-position: right bottom;
 }
-
-.ui-corner-right { -webkit-border-top-right-radius: 6px; -webkit-border-bottom-right-radius: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; -moz-border-radius-topright: 6px; -moz-border-radius-bottomright: 6px;  }
-.ui-corner-left { -webkit-border-top-left-radius: 6px; -webkit-border-bottom-left-radius: 6px; border-top-left-radius: 6px;  border-bottom-left-radius: 6px; -moz-border-radius-topleft: 6px; -moz-border-radius-bottomleft: 6px; }
-
+.sub_menu {
+    position: absolute;
+    display: none;
+}
 
 #canvas {
     width: 850px;
@@ -42,6 +51,11 @@
 .delete_icon {
     width: 16px;
     height: 16px;
+}
+.print_image {
+    max-width: 510px;
+    max-height: 285px;
+    border:1px solid black;
 }
 
 

@@ -1,91 +1,125 @@
-function Atom(point) {
-    //The point where the atom is
-    this.point = point;
+/* ************************************************************************
+ * *                         ChemIllustrator                             **
+ * ************************************************************************
+ * @package     mod                                                      **
+ * @subpackage  chemillustrator                                          **
+ * @name        ChemIllustrator                                          **
+ * @copyright   oohoo.biz                                                **
+ * @link        http://oohoo.biz                                         **
+ * @author      Braedan Jongerius <jongeriu@ualberta.ca> 2012            **
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later **
+ * ************************************************************************
+ * ************************************************************************/
 
-    //The element of the atom
-    //this.element = $("#element_tool").next().find("img").attr('src');
+/**
+ * Create an Atom object at the location (x, y)
+ *
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param element Atom's element
+ * @param charge Atom's charge
+ * @return Atom
+ */
+function Atom(x, y, element, charge) {
+    this.id = 0;
+
+    //Location
+    this.x = 0;
+    this.y = 0;
+
+    //Element of the atom
     this.element = "C";
-
-    //The charge on the atom
+    //Charge on the atom
     this.charge = 0;
 
-     //The atoms this atom is connected to
+    //IDs of Atoms this Atom is connected to
     this.connections = new Array();
+
+    //Calculate Atom data
+    this.update(x, y, element, charge);
 }
-Atom.prototype.shift = function(point) {
-    this.point.x += point.x;
-    this.point.y += point.y;
-}
-Atom.prototype.update = function(point) {
-    if (point != null) {
-        this.point = point;
+
+/**
+ * Draw the Atom object
+ *
+ * @return void
+ */
+Atom.prototype.draw = function() {
+    var text = "";
+    if (this.element != "C") {
+        text += this.element;
     }
-    var atom = this;
-    $(elements.bonds.list).each(function(index, item) {
-        if (item.atom1 == atom || item.atom2 == atom) {
-            this.update();
+    if (this.charge != 0) {
+        //Add the numerical value
+        var number = Math.abs(this.charge);
+        if (number != 1) {
+            $.each(number.toString(), function(index, item) {
+                text += "^" + item;
+            });
         }
-    });
+        //Add the charge symbol
+        if (this.charge > 0) {
+            text += "^" + "+";
+        }
+        else {
+            text += "^" + "-";
+        }
+    }
+
+    if (text != "") {
+        var atomText = new Text(this.x, this.y, text);
+        atomText.draw();
+    }
 }
-Atom.prototype.drawCircle = function(color, radius) {
+
+/**
+ * Draw a boundary/circle around the Atom object
+ *
+ * @param color Color of the boundary/circle
+ * @param radius Radius of the boundary/circle
+ * @return void
+ */
+Atom.prototype.drawBoundary = function(color, radius) {
     //Save the current state
     ctx.save();
     ctx.strokeStyle = color;
     ctx.beginPath();
-    ctx.arc(this.point.x, this.point.y, radius, 0, 2*Math.PI);
+    ctx.arc(this.x, this.y, radius, 0, 2*Math.PI);
     ctx.stroke();
     //Restore the state
     ctx.restore();
 }
-Atom.prototype.draw = function() {
-    ctx.save();
 
-    var width = 0;
-
-    //If the element is not the standard carbon, draw the element label
-    if (this.element != "C") {
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.font = fontSize + "px sans-serif";
-        ctx.fillStyle = 'white';
-
-        width = ctx.measureText(this.element).width;
-
-        ctx.fillRect(this.point.x - (width/2), this.point.y - (fontSize/2), width , fontSize - 2);
-
-        ctx.fillStyle = 'black';
-        ctx.fillText(this.element, this.point.x, this.point.y);
+/**
+ * Update the Atom object's location and/or element and/or charge
+ *
+ * @param x New x location
+ * @param y New y location
+ * @param element New element
+ * @param charge New charge
+ * @return void
+ */
+Atom.prototype.update = function(x, y, element, charge) {
+    if (x != null) {
+        this.x = x;
+    }
+    if (y != null) {
+        this.y = y;
+    }
+    if (element != null) {
+        this.element = element;
+    }
+    if (charge != null) {
+        this.charge = charge;
     }
 
-    //If the charge isn't 0
-    if (this.charge != 0) {
-        var sign;
-        if (this.charge > 0)
-            sign = "+";
-        else
-            sign = "-";
-
-        var number = Math.abs(this.charge);
-
-        if (number == 1)
-            number = "";
-
-        var signText =  number + sign;
-
-        var height = fontSize/2;
-
-        ctx.textBaseline = "top";
-        ctx.textAlign = "left";
-        ctx.font = height.toString() +"px sans-serif";
-        ctx.fillStyle = 'white';
-
-        var width2 = ctx.measureText(signText).width;
-
-        ctx.fillRect((width/2), - 12 , width2 , height);
-
-        ctx.fillStyle = 'black';
-
-        ctx.fillText(signText, this.point.x - (width / 2), this.point.y - 12);
+    //Update Bonds that use this Atom (only if x or y has changed)
+    if (x != null || y != null) {
+        var id = this.id;
+        $.each(elements.bonds.list, function(index, item) {
+            if (item.atom1ID == id || item.atom2ID == id) {
+                this.update();
+            }
+        });
     }
-    ctx.restore();
 }

@@ -1,19 +1,17 @@
 <?php
 
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/* * **********************************************************************
+ * *                         ChemIllustrator                             **
+ * ************************************************************************
+ * @package     mod                                                      **
+ * @subpackage  chemillustrator                                          **
+ * @name        ChemIllustrator                                          **
+ * @copyright   oohoo.biz                                                **
+ * @link        http://oohoo.biz                                         **
+ * @author      Braedan Jongerius <jongeriu@ualberta.ca> 2012            **
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later **
+ * ************************************************************************
+ * ********************************************************************** */
 
 /**
  * This file keeps track of upgrades to the chemillustrator module
@@ -24,11 +22,6 @@
  * upgrade your older installation to the current version. If there's something
  * it cannot do itself, it will tell you what you need to do.  The commands in
  * here will all be database-neutral, using the functions defined in DLL libraries.
- *
- * @package    mod
- * @subpackage chemillustrator
- * @copyright  2012 Braedan Jongerius <jongeriu@ualberta.ca>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -43,9 +36,9 @@ function xmldb_chemillustrator_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
 
-    if ($oldversion < 2012081500) {
+    if ($oldversion < 2012082700) {
         //chemillustrator savepoint reached
-        upgrade_mod_savepoint(true, 2012081500, 'chemillustrator');
+        upgrade_mod_savepoint(true, 2012082700, 'chemillustrator');
     }
 
     // Final return of upgrade result (true, all went good) to Moodle.

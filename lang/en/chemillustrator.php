@@ -1,82 +1,69 @@
 <?php
 
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+/* * **********************************************************************
+ * *                         ChemIllustrator                             **
+ * ************************************************************************
+ * @package     mod                                                      **
+ * @subpackage  chemillustrator                                          **
+ * @name        ChemIllustrator                                          **
+ * @copyright   oohoo.biz                                                **
+ * @link        http://oohoo.biz                                         **
+ * @author      Braedan Jongerius <jongeriu@ualberta.ca> 2012            **
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later **
+ * ************************************************************************
+ * ********************************************************************** */
 
 /**
  * English strings for chemillustrator
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
- *
- * @package    mod
- * @subpackage chemillustrator
- * @copyright  2012 Braedan Jongerius <jongeriu@ualberta.ca>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'ChemIllustrator';
 $string['modulenameplural'] = 'ChemIllustrators';
-$string['chemillustratorname'] = 'ChemIllustrator name';
-$string['chemillustrator'] = 'ChemIllustrator';
-$string['pluginadministration'] = 'ChemIllustrator administration';
 $string['pluginname'] = 'ChemIllustrator';
+$string['pluginadministration'] = 'ChemIllustrator administration';
+$string['chemillustrator'] = 'ChemIllustrator';
+$string['chemillustratorname'] = 'ChemIllustrator name';
 $string['nochemillustrators'] = 'No ChemIllustrators found';
 
 //Capabilities
 $string['chemillustrator:addinstance'] = 'Add a new ChemIllustrator';
-$string['chemillustrator:submit'] = 'Submit a ChemIllustrator';
 $string['chemillustrator:view'] = 'View a ChemIllustrator';
 
+//Messages
 $string['nohtml5'] = 'HTML5 canvas support is required, please upgrade your browser.';
+$string['open'] = 'Open File';
+$string['overwrite'] = 'Are you sure you want to overwrite?';
+$string['save'] = 'Save File';
 
-//Tool tooltips
-$string['move_tool'] = 'Move';
-$string['single_bond_tool'] = 'Single Bond';
-$string['double_bond_tool'] = 'Double Bond';
-$string['triple_bond_tool'] = 'Triple Bond';
-$string['stereoup_bond_tool'] = 'Stereo-Up Bond';
-$string['stereodown_bond_tool'] = 'Stereo-Down Bond';
-$string['eraser_tool'] = 'Eraser';
-$string['benzene_ring_tool'] = 'Benzene Ring';
-$string['penta_ring_tool'] = 'Penta-Ring';
-$string['hexa_ring_tool'] = 'Hexa-Ring';
+//Tools
 $string['arrow_tool'] = 'Arrow';
-$string['plus_tool'] = 'Add Positive Ion';
+$string['benzene_ring_tool'] = 'Benzene Ring';
+$string['clear_tool'] = 'Clear All';
+$string['double_bond_tool'] = 'Double Bond';
+$string['eraser_tool'] = 'Eraser';
+$string['hexa_ring_tool'] = 'Hexa-Ring';
 $string['minus_tool'] = 'Add Negative Ion';
-$string['undo_tool'] = 'Undo';
+$string['move_tool'] = 'Move';
+$string['open_tool'] = 'Open File';
+$string['pan_tool'] = 'Pan';
+$string['penta_ring_tool'] = 'Penta-Ring';
+$string['periodic_table_tool'] = 'Periodic Table';
+$string['plus_tool'] = 'Add Positive Ion';
 $string['print_tool'] = 'Print';
+$string['reset_view_tool'] = 'Reset View';
+$string['save_tool'] = 'Save File';
+$string['select_tool'] = 'Select';
+$string['single_bond_tool'] = 'Single Bond';
+$string['stereodown_bond_tool'] = 'Stereo-Down Bond';
+$string['stereoup_bond_tool'] = 'Stereo-Up Bond';
 $string['text_tool'] = 'Text';
+$string['triple_bond_tool'] = 'Triple Bond';
+$string['undo_tool'] = 'Undo';
 $string['zoomin_tool'] = 'Zoom In';
 $string['zoomout_tool'] = 'Zoom Out';
-$string['pan_tool'] = 'Pan';
-$string['select_tool'] = 'Select';
-$string['save_tool'] = 'Save File';
-$string['open_tool'] = 'Open File';
-$string['periodic_table_tool'] = 'Periodic Table';
-$string['clear_tool'] = 'Clear All';
-$string['reset_view_tool'] = 'Reset View';
 
-//Prompts
-$string['save'] = 'Save';
-$string['open'] = 'Open';
-$string['overwrite'] = 'Are you sure you want to overwrite?';
-
-//Element strings
+//Elements
 $string['H'] = 'Hydrogen';
 $string['He'] = 'Helium';
 $string['Li'] = 'Lithium';

@@ -3,8 +3,8 @@ ChemIllustrator
 ChemIllustrator is a tool used for drawing and manipulating
 representations of chemical structures.
 
-Prerequisites: None
-Installation: Copy the folder into moodle/mod and name the folder "chemillustrator"
-Required: An HTML5 capable browser to view ChemIllustrator instances
+Prerequisites: None.
+Installation: Copy the folder into "moodle/mod" and name the folder "chemillustrator".
+Required: An HTML5 capable browser to view ChemIllustrator instances.
 
-Refer to the PDF documentation for more information: URL http://oohoo.biz/
+Refer to the PDF documentation for more information: URL http://oohoo.biz/ .

@@ -1,3 +1,16 @@
+/* ************************************************************************
+ * *                         ChemIllustrator                             **
+ * ************************************************************************
+ * @package     mod                                                      **
+ * @subpackage  chemillustrator                                          **
+ * @name        ChemIllustrator                                          **
+ * @copyright   oohoo.biz                                                **
+ * @link        http://oohoo.biz                                         **
+ * @author      Braedan Jongerius <jongeriu@ualberta.ca> 2012            **
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later **
+ * ************************************************************************
+ * ************************************************************************/
+
 //HTML5 canvas and its context
 var canvas, ctx;
 //Canvas width and height
@@ -8,9 +21,11 @@ var elements;
 //What is being hovered
 var hover;
 //Array of what is selected
-var selected;
+var selected = new Array();
+var selectedX = null, selectedY = null, selectedWidth = null, selectedHeight = null;
 
 var fontSize = 18;
+var textFontSize = 16;
 
 var currentFileName = 'Untitled';
 
@@ -19,10 +34,10 @@ var zoom;
 //Where the origin (0,0) point is, NOT what point the upper left is
 var origin;
 
-var currentTool;
+var currentTool = null;
 
 //Draw the grid?
-var gridLines;
+var gridLines = true;
 
 //Stack to keep the undos
 var undoStack = new Array();
@@ -38,25 +53,18 @@ function init() {
     canvas.attr('width', WIDTH + 'px').attr('height', HEIGHT + 'px');
 
     elements = {
-        atoms: new Elements(),
-        bonds: new Elements(),
-        arrows: new Elements(),
-        rings: new Elements(),
-        boxes: new Elements()
+        atoms: new Element(),
+        bonds: new Element(),
+        arrows: new Element(),
+        rings: new Element(),
+        boxes: new Element()
     };
 
     hover = null;
 
-    selected = new Array();
-    origin = new Point(0,0);
+    origin = new Point(0, 0);
 
     zoom = 1.0;
-
-    gridLines = true;
-    //Draw all the tool buttons
-    currentTool = 'single_bond_tool';
-
-    //Set the defualt tool to the second
 
     //Cancel the context menu
     canvas.on('contextmenu', function(event) {
@@ -65,44 +73,39 @@ function init() {
     });
 
     //Set up the mouse events
-    canvas.on('mousedown', onDown).on('mousewheel', zoomWheel).on('mouseup', onUp).on('mousemove', onMove);
-
-    //Set up the touch events
-    //canvas.on('touchstart', onDown).on('touchend', null).on('touchmove', null);
+    canvas.on('mousedown touchstart', onDown).on('mousewheel', zoomWheel).on('mouseup touchend', onUp).on('mousemove touchmove', onMove);
 
     //Set the ctrl+z script to undo
     var isCtrl = false;
     $(document).on('keyup', function(e) {
-        if (e.which == 17) {
+        if (e.which == $.ui.keyCode.CONTROL) {
             isCtrl=false;
         }
-    }).on('keydown' ,function(e) {
-        if (e.which == 46 && SelectTool.multiSelect.length > 0) {
-            for (var n = 0; n < SelectTool.multiSelect.length; n++) {
-                if (SelectTool.multiSelect[n] instanceof Atom) {
-                    elements.atoms.remove(SelectTool.multiSelect[n]);
+    }).on('keydown', function(e) {
+        if (e.which == $.ui.keyCode.DELETE && selected.length > 0) {
+            for (var n = 0; n < selected.length; n++) {
+                if (selected[n] instanceof Atom) {
+                    elements.atoms.remove(selected[n]);
                 }
-                else if (SelectTool.multiSelect[n] instanceof Arrow) {
-                    elements.arrows.remove(SelectTool.multiSelect[n]);
+                else if (selected[n] instanceof Arrow) {
+                    elements.arrows.remove(selected[n]);
                 }
-                else if (SelectTool.multiSelect[n] instanceof TextBox) {
-                    elements.boxes.remove(SelectTool.multiSelect[n]);
+                else if (selected[n] instanceof Text) {
+                    elements.boxes.remove(selected[n]);
                 }
             }
-            SelectTool.multiSelect.length = 0;
+            selected.length = 0;
             redraw();
         }
-        else if(e.which == 17) {
+        else if(e.which == $.ui.keyCode.CONTROL) {
             isCtrl=true;
         }
         else if(e.which == 27) {
             SelectTool.multiSelect.length = 0;
             redraw();
         }
-
-        if (e.which == 90 && isCtrl == true) {
+        else if (e.which == 90 && isCtrl == true) {
             new UndoTool().onSelected();
-
             redraw();
         }
         else if (e.which == 65 && isCtrl == true) {
@@ -125,11 +128,9 @@ function init() {
         else if(e.which == 83 && isCtrl == true) {
             new SaveTool(null, null).onSelected();
             isCtrl = false;
-            return false;
         }
         else if(e.which == 79 && isCtrl == true) {
             new OpenTool(null, null).onSelected();
-            return false;
         }
     });
     //Draw the canvas
@@ -161,6 +162,11 @@ function clearCanvas() {
     }
     ctx.restore();
 }
+
+/**
+ * Redraws everything on the canvas
+ * @return void
+ */
 function redraw() {
     clearCanvas();
 
@@ -174,86 +180,111 @@ function redraw() {
     elements.boxes.draw();
 
     if (hover != null && !(hover instanceof Point)) {
-        hover.drawCircle('red', 6);
+        if (hover.end != null) {
+            hover.drawEndBoundary('red', 6, hover.end);
+        }
+        else {
+            hover.drawBoundary('red', 6);
+        }
     }
     else {
         if (currentTool instanceof BondTool) {
-            $.each(elements.atoms.list.concat(elements.bonds.list), function(index, item) {
-                item.drawCircle('green', 4);
+            $.each(elements.atoms.list, function(index, item) {
+                item.drawBoundary('green', 4);
+            });
+            $.each(elements.bonds.list, function(index, item) {
+                item.drawBoundary('green', 4);
             });
         }
         else if (currentTool instanceof MoveTool) {
-            $.each(elements.atoms.list.concat(elements.bonds.list).concat(elements.arrows.list), function (index, item) {
-                item.drawCircle('green', 4);
-                if (item instanceof Arrow) {
-                    item.drawEndCircle('green', 4);
-                }
+            $.each(elements.atoms.list, function (index, item) {
+                item.drawBoundary('green', 4);
+            });
+            $.each(elements.bonds.list, function (index, item) {
+                item.drawBoundary('green', 4);
+            });
+            $.each(elements.arrows.list, function (index, item) {
+                item.drawEndBoundary('green', 4);
             });
         }
         else if (currentTool instanceof ChangeElementTool) {
             $.each(elements.atoms.list, function(index, item) {
-                item.drawCircle('green', 4);
+                item.drawBoundary('green', 4);
+            });
+        }
+        else if (currentTool instanceof RingTool) {
+            $.each(elements.bonds.list, function(index, item) {
+                item.drawBoundary('green', 4);
             });
         }
         else if (currentTool instanceof ChargeTool) {
             $.each(elements.atoms.list, function(index, item) {
-                item.drawCircle('green', 4);
+                item.drawBoundary('green', 4);
             });
         }
         else if (currentTool instanceof TextTool) {
             $.each(elements.boxes.list, function(index, item) {
-                item.drawBorder('green');
+                item.drawBoundary('green');
             });
             $.each(elements.arrows.list, function(index, item) {
-                item.drawCircle('green', 4);
+                item.drawBoundary('green', 4);
+            });
+        }
+        else if (currentTool instanceof ArrowTool) {
+            $.each(elements.arrows.list, function(index, item) {
+                item.drawBoundary('green', 4);
             });
         }
     }
 
-    ctx.restore();
-
     ctx.strokeStyle = 'red';
-    ctx.fillStyle = 'rgba(137,0,0,0.1)';
+    ctx.fillStyle = 'rgba(137, 0, 0, 0.1)';
 
     //draw select
     if (selected != null) {
-        ctx.fillRect( (selected.x + origin.x - WIDTH/2)*zoom + WIDTH/2, (selected.y + origin.y - HEIGHT/2)*zoom + HEIGHT/2 , selected.width*zoom, selected.height*zoom);
-        ctx.strokeRect( (selected.x + origin.x - WIDTH/2)*zoom + WIDTH/2, (selected.y + origin.y - HEIGHT/2)*zoom + HEIGHT/2 , selected.width*zoom, selected.height*zoom);
+        ctx.fillRect( (selectedX + origin.x - WIDTH/2)*zoom + WIDTH/2, (selectedY + origin.y - HEIGHT/2)*zoom + HEIGHT/2 , selectedWidth*zoom, selectedHeight*zoom);
+        ctx.strokeRect( (selectedX + origin.x - WIDTH/2)*zoom + WIDTH/2, (selectedY + origin.y - HEIGHT/2)*zoom + HEIGHT/2 , selectedWidth*zoom, selectedHeight*zoom);
     }
 
-    for (var n = 0; n < selected.length ; n++) {
-        if (selected[n] instanceof Atom) {
-            selected[n].drawCircle('rgba(255,0,0,1)');
-        }
-        else if (selected[n] instanceof Arrow) {
-            ctx.save();
-            convertWorldToLocal();
-            ctx.beginPath();
-            ctx.arc(selected[n].center.x,selected[n].center.y,4,0,Math.PI*2,true);
-            ctx.stroke();
-            ctx.closePath();
-            ctx.restore();
-        }
-        else if (selected[n] instanceof TextBox) {
-            ctx.save();
-            convertWorldToLocal();
-            ctx.strokeRect(selected[n].point.x, selected[n].point.y, selected[n].width, selected[n].height);
-            ctx.restore();
+    if (selected instanceof Array) {
+        for (var n = 0; n < selected.length ; n++) {
+            if (selected[n] instanceof Atom) {
+                selected[n].drawCircle('rgba(255,0,0,1)', 5);
+            }
+            else if (selected[n] instanceof Arrow) {
+                ctx.save();
+                convertWorldToLocal();
+                ctx.beginPath();
+                ctx.arc(selected[n].center.x, selected[n].center.y, 4, 0, Math.PI*2, true);
+                ctx.stroke();
+                ctx.closePath();
+                ctx.restore();
+            }
+            else if (selected[n] instanceof Text) {
+                ctx.save();
+                convertWorldToLocal();
+                ctx.strokeRect(selected[n].point.x, selected[n].point.y, selected[n].width, selected[n].height);
+                ctx.restore();
+            }
         }
     }
+    ctx.restore();
 }
 
 function onDown(event) {
     event.preventDefault();
     event.stopPropagation();
 
-
     if (currentTool != null) {
-        $(document).on('mousemove', onMove);
+        $(document).on('mousemove touchmove', onMove);
+
+        if (event.type == "touchstart") {
+            onMove(event);
+        }
 
         selected = hover;
 
-        if (event.which == 1 && !(currentTool instanceof PanTool)) {
+        if ((event.which == 1 || event.type == "touchstart") && !(currentTool instanceof PanTool)) {
             currentTool.onDown(hover);
         }
         else if (event.which == 2 || currentTool instanceof PanTool) {
@@ -265,18 +296,34 @@ function onDown(event) {
 }
 function onMove(event) {
     var oldHover = hover;
-    hover = getCoords(event, true);
+
+    if (currentTool instanceof ArrowTool) {
+        var test = getCoords(event, true);
+        if (test instanceof Arrow) {
+            hover = test;
+        }
+        else {
+            hover = getCoords(event, false);
+        }
+    }
+    else {
+        hover = getCoords(event, true);
+    }
 
     if (event.which == 2 || (currentTool instanceof PanTool && event.which == 1)) {
         new PanTool().onDrag(getCoords(event, false));
     }
-    else if (event.which == 1) {
-        currentTool.onDrag(getCoords(event, true));
+    else if (event.which == 1 || event.type == "touchmove") {
+        if (currentTool instanceof ArrowTool || selected instanceof Arrow) {
+            currentTool.onDrag(getCoords(event, false));
+        }
+        else {
+            currentTool.onDrag(getCoords(event, true));
+        }
     }
 
-    if (hover != oldHover) {
-        redraw();
-    }
+    redraw();
+
 }
 function onUp(event) {
     event.preventDefault();
@@ -317,21 +364,30 @@ function zoomWheel(event, delta) {
     }
 }
 
-function getCoords(e, snap, touch) {
-    var coords = new Point((e.pageX - canvas.offset().left - WIDTH/2)/zoom + WIDTH/2 - origin.x, (e.pageY - canvas.offset().top - HEIGHT/2)/zoom + HEIGHT/2 - origin.y);
+function getCoords(e, snap) {
+    var coords = null;
+    if (e.type == "touchmove" || e.type == "touchstart") {
+        coords = new Point((e.originalEvent.changedTouches[0].pageX - canvas.offset().left - WIDTH/2)/zoom + WIDTH/2 - origin.x, (e.originalEvent.changedTouches[0].pageY - canvas.offset().top - HEIGHT/2)/zoom + HEIGHT/2 - origin.y);
+    }
+    else {
+        coords = new Point((e.pageX - canvas.offset().left - WIDTH/2)/zoom + WIDTH/2 - origin.x, (e.pageY - canvas.offset().top - HEIGHT/2)/zoom + HEIGHT/2 - origin.y);
+    }
 
     if (snap) {
-        if (touch)
-            coords.x += 100;
-
-        var r = 10;
         var ans;
 
         $.each(elements, function(index, item) {
-            ans = item.getElementByPoint(coords);
+            if (item instanceof Element) {
+                if (e.type == "touchmove" || e.type == "touchstart") {
+                    ans = item.getElementByPoint(coords, 15);
+                }
+                else {
+                    ans = item.getElementByPoint(coords, 5);
+                }
 
-            if (ans != null) {
-                return false;
+                if (ans != null && ans != selected && ans.id != 0) {
+                    return false;
+                }
             }
         });
 
@@ -339,7 +395,7 @@ function getCoords(e, snap, touch) {
             return ans;
         }
 
-        return (new Point(Math.snap(coords.x,25), Math.snap(coords.y,25)));
+        return (new Point(Math.snap(coords.x, 25), Math.snap(coords.y, 25)));
     }
     else
         return coords;
@@ -362,7 +418,7 @@ function convertWorldToLocal(x, y) {
 
 function save(data, dialogs) {
     $.post('saveFile.php', data, function(response) {
-        if (response == "Overwrite?") {
+        if (response != "") {
             createOverwritePrompt(save, data, dialogs);
             return;
         }
@@ -401,56 +457,77 @@ function createOverwritePrompt(callback, data, dialogs) {
     });
 }
 
-
+/**
+ * Creates a Point object
+ *
+ * @param x The x coordinate
+ * @param y The y coordinate
+ * @return void
+ */
 function Point(x, y) {
     this.x = x;
     this.y = y;
 }
-Point.prototype.isWithinRadius = function(point, r) {
-    if (Math.distance(this, point) <= r)
-        return true;
 
+/**
+ * Get wether point is withing a radius of this point
+ *
+ * @param Point point point to test
+ * @param number r Radius to check
+ * @return boolean True if withing radius, otherwise false
+ */
+function isWithinRadius(point1, point2, r) {
+    if (Math.distance(point1.x, point1.y, point2.x, point2.y) <= r) {
+        return true;
+    }
     //If not found, return false
     return false;
 }
 
-function Elements() {
-    this.list = new Array();
-    this.temp = null;
+
+function Element() {
+    this.list = {};
+    this.id = 1;
 }
-Elements.prototype.add = function(element) {
-    this.list.push(element);
+Element.prototype.add = function(element) {
+    element.id = this.id;
+
+    this.list[this.id] = element;
+    this.id++;
 }
-Elements.prototype.getElementByPoint = function(point) {
+Element.prototype.getElementByPoint = function(point, r) {
     var element = null;
     //Loop through all the elements
     $.each(this.list, function(index, item) {
         if (item instanceof Atom) {
-            if (item.point.isWithinRadius(point, 5)) {
+            if (isWithinRadius(new Point(item.x, item.y), point, r) && item.id != 0) {
                 element = item;
                 //Returning false breaks out of each loop
                 return false;
             }
         }
         else if (item instanceof Bond || item instanceof Arrow) {
-            if (item.center.isWithinRadius(point, 5)) {
+            if (isWithinRadius(new Point(item.cx, item.cy), point, r)) {
                 element = item;
+                hover.end = null;
                 //Returning false breaks out of each loop
                 return false;
             }
-            else if (item instanceof Arrow && item.point1.isWithinRadius(point, 5)) {
-                element = item.point1;
+            else if (item instanceof Arrow && isWithinRadius(new Point(item.x1, item.y1), point, r)) {
+                element = item;
+                hover.end = 1;
                 //Returning false breaks out of each loop
                 return false;
             }
-            else if (item instanceof Arrow && item.point2.isWithinRadius(point, 5)) {
-                element = item.point2;
+            else if (item instanceof Arrow && isWithinRadius(new Point(item.x2, item.y2), point, r)) {
+                element = item;
+                hover.end = 2;
                 //Returning false breaks out of each loop
                 return false;
             }
         }
-        else if (item instanceof TextBox) {
-            if (item.isWithinRadius(point)) {
+        else if (item instanceof Text) {
+            if (isWithinRadius(item, point)) {
                 element = item;
                 //Returning false breaks out of each loop
                 return false;
@@ -459,27 +536,51 @@ Elements.prototype.getElementByPoint = function(point) {
     });
     return element;
 }
-Elements.prototype.getElementById = function(id) {
-    var element = null;
-    //Loop through all the elements
-    $.each(this.list, function(index, item) {
-        if (item.id == id) {
-            element = item;
-            //Returning false breaks out of each loop
-            return false;
-        }
-    });
-    return element;
-}
-Elements.prototype.draw = function() {
+Element.prototype.draw = function() {
     //Draw each
     $.each(this.list, function(index, item) {
         item.draw();
     });
-    if (this.temp != null) {
-        this.temp.draw();
+}
+Element.prototype.remove = function(element) {
+    var list = this.list;
+    $(this.list).each(function(index, item) {
+        if (item == element) {
+            list.splice(index, 1);
+            return false;
+        }
+    });
+}
+
+function readData(data) {
+    if (data != null) {
+        elements = JSON.parse(data);
+
+        $.each(elements, function(index, item) {
+            if (index != 'id') {
+                var list = item.list;
+                var temp = null;
+                var id = item.id;
+
+                $.each(list, function(index2, item2) {
+                    if (index == 'arrows') {
+                        list[index2] = $.extend(new Arrow(), item2);
+                    }
+                    else if (index == 'boxes') {
+                        list[index2] = $.extend(new Text(), item2);
+                    }
+                    else if (index == 'atoms') {
+                        list[index2] = $.extend(new Atom(), item2);
+                    }
+                    else if (index == 'bonds') {
+                        list[index2] = $.extend(new Bond(), item2);
+                    }
+                });
+
+                elements[index].id = id;
+                elements[index] = new Element();
+                elements[index].list = list;
+            }
+        });
     }
 }
-Elements.prototype.remove = function(element) {
-
-    }

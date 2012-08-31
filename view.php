@@ -1,26 +1,19 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/* * **********************************************************************
+ * *                         ChemIllustrator                             **
+ * ************************************************************************
+ * @package     mod                                                      **
+ * @subpackage  chemillustrator                                          **
+ * @name        ChemIllustrator                                          **
+ * @copyright   oohoo.biz                                                **
+ * @link        http://oohoo.biz                                         **
+ * @author      Braedan Jongerius <jongeriu@ualberta.ca> 2012            **
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later **
+ * ************************************************************************
+ * ********************************************************************** */
 
 /**
  * Prints a particular instance of chemillustrator
- *
- * @package    mod
- * @subpackage chemillustrator
- * @copyright  2012 Braedan Jongerius <jongeriu@ualberta.ca>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once(dirname(__FILE__) . '/lib.php');
@@ -52,29 +45,24 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 $PAGE->set_button($OUTPUT->update_module_button($cm->id, 'chemillustrator'));
 
-$PAGE->requires->css('/mod/chemillustrator/css/jquery-ui-1.8.21.custom.css');
+$PAGE->requires->css('/mod/chemillustrator/css/jquery-ui-1.8.23.css');
 $PAGE->requires->css('/mod/chemillustrator/css/jquery.dataTables_themeroller.css');
 $PAGE->requires->css('/mod/chemillustrator/css/chem.css');
 
-$PAGE->requires->js('/mod/chemillustrator/js/jquery-1.7.2.min.js', true);
-$PAGE->requires->js('/mod/chemillustrator/js/jquery-ui-1.8.21.custom.min.js', true);
-$PAGE->requires->js('/mod/chemillustrator/js/jquery.mousewheel.min.js', true);
+$PAGE->requires->js('/mod/chemillustrator/js/jquery-1.8.0.min.js', true);
+$PAGE->requires->js('/mod/chemillustrator/js/jquery-ui-1.8.23.min.js', true);
 $PAGE->requires->js('/mod/chemillustrator/js/jquery.dataTables.min.js', true);
+$PAGE->requires->js('/mod/chemillustrator/js/jquery.mousewheel.min.js', true);
 $PAGE->requires->js('/mod/chemillustrator/js/main.js', true);
 $PAGE->requires->js('/mod/chemillustrator/js/Arrows.js', true);
 $PAGE->requires->js('/mod/chemillustrator/js/Atoms.js', true);
 $PAGE->requires->js('/mod/chemillustrator/js/Bonds.js', true);
-$PAGE->requires->js('/mod/chemillustrator/js/canvas2image.js', true);
-$PAGE->requires->js('/mod/chemillustrator/js/sylvester.js', true);
-$PAGE->requires->js('/mod/chemillustrator/js/MOLFile.js', true);
+$PAGE->requires->js('/mod/chemillustrator/js/Text.js', true);
 $PAGE->requires->js('/mod/chemillustrator/js/Math.js', true);
-$PAGE->requires->js('/mod/chemillustrator/js/TextBox.js', true);
+$PAGE->requires->js('/mod/chemillustrator/js/canvas2image.js', true);
 $PAGE->requires->js('/mod/chemillustrator/js/Tools.js', true);
 
-// other things you may want to set - remove if not needed
-//$PAGE->set_cacheable(false);
 //$PAGE->set_focuscontrol('some-html-id');
-//$PAGE->add_body_class('chemillustrator-'.$somevar);
 // Output starts here
 echo $OUTPUT->header();
 
@@ -105,11 +93,11 @@ if (has_capability('mod/chemillustrator:view', $context)) {
                 <img src="icons/eraser.png"/></label>
             <input id="ring_tool" type="radio" name="tools"/><label for="ring_tool" class="sub_tool" menu="#sub_rings"><img/></label>
             <span id="sub_rings" class="sub_menu">
-                <input id="benzene_tool" type="radio" name="rings"/><label for="benzene_tool" tool="RingTool('benzene')" title="<?php echo get_string('benzene_ring_tool', 'chemillustrator'); ?>">
+                <input id="benzene_tool" type="radio" name="rings"/><label for="benzene_tool" tool="RingTool(6, [2,1,2,1,2,1])" title="<?php echo get_string('benzene_ring_tool', 'chemillustrator'); ?>">
                     <img src="icons/benzene.png"/></label>
-                <input id="penta_tool" type="radio" name="rings"/><label for="penta_tool" tool="RingTool('penta')" title="<?php echo get_string('penta_ring_tool', 'chemillustrator'); ?>">
+                <input id="penta_tool" type="radio" name="rings"/><label for="penta_tool" tool="RingTool(5)" title="<?php echo get_string('penta_ring_tool', 'chemillustrator'); ?>">
                     <img src="icons/pentagon.png"/></label>
-                <input id="hexa_tool" type="radio" name="rings"/><label for="hexa_tool" tool="RingTool('hexa')" title="<?php echo get_string('hexa_ring_tool', 'chemillustrator'); ?>">
+                <input id="hexa_tool" type="radio" name="rings"/><label for="hexa_tool" tool="RingTool(6)" title="<?php echo get_string('hexa_ring_tool', 'chemillustrator'); ?>">
                     <img src="icons/hexagon.png"/></label>
             </span>
             <input id="element_tool" type="radio" name="tools"/><label for="element_tool" class="sub_tool" menu="#sub_elements"><img/></label>
@@ -128,7 +116,7 @@ if (has_capability('mod/chemillustrator:view', $context)) {
                     <img src="icons/K.png"/></label>
                 <input id="S_tool" type="radio" name="elements"/><label for="S_tool" tool="ChangeElementTool('S')" title="<?php echo get_string('S', 'chemillustrator'); ?>">
                     <img src="icons/S.png"/></label>
-                <input id="periodic_tool" type="radio" name="elements"/><label for="periodic_tool" tool="ChangeElementTool(null, true)" title="<?php echo get_string('periodic_table_tool', 'chemillustrator'); ?>">
+                <input id="periodic_tool" type="radio" name="elements"/><label for="periodic_tool" tool="ChangeElementTool('table')" title="<?php echo get_string('periodic_table_tool', 'chemillustrator'); ?>">
                     <img src="icons/table.png"/></label>
             </span>
             <input id="arrow_tool" type="radio" name="tools"/><label for="arrow_tool" tool="ArrowTool()" title="<?php echo get_string('arrow_tool', 'chemillustrator'); ?>">
@@ -137,36 +125,33 @@ if (has_capability('mod/chemillustrator:view', $context)) {
                 <img src="icons/plus.png"/></label>
             <input id="negative_charge_tool" type="radio" name="tools"/><label for="negative_charge_tool" tool="ChargeTool(-1)" title="<?php echo get_string('minus_tool', 'chemillustrator'); ?>">
                 <img src="icons/minus.png"/></label>
-            <a id="undo_tool" for="undo_tool" tool="UndoTool()" title="<?php echo get_string('undo_tool', 'chemillustrator'); ?>">
+            <a id="undo_tool" tool="UndoTool()" title="<?php echo get_string('undo_tool', 'chemillustrator'); ?>">
                 <img src="icons/undo.png"/></a>
-            <a id="print_tool" for="print_tool" tool="PrintTool()" title="<?php echo get_string('print_tool', 'chemillustrator'); ?>">
+            <a id="print_tool" tool="PrintTool()" title="<?php echo get_string('print_tool', 'chemillustrator'); ?>">
                 <img src="icons/print.png"/></a>
             <input id="text_tool" type="radio" name="tools"/><label for="text_tool" tool="TextTool()" title="<?php echo get_string('text_tool', 'chemillustrator'); ?>">
                 <img src="icons/text.png"/></label>
-            <input id="zoomin_tool" type="radio" name="tools"/><label for="zoomin_tool" tool="ZoomTool(1.5)" title="<?php echo get_string('zoomin_tool', 'chemillustrator'); ?>">
-                <img src="icons/zoomin.png"/></label>
-            <input id="zoomout_tool" type="radio" name="tools"/><label for="zoomout_tool" tool="ZoomTool(1/1.5)" title="<?php echo get_string('zoomout_tool', 'chemillustrator'); ?>">
-                <img src="icons/zoomout.png"/></label>
+            <a id="zoomin_tool" tool="ZoomTool(1.5)" title="<?php echo get_string('zoomin_tool', 'chemillustrator'); ?>">
+                <img src="icons/zoomin.png"/></a>
+            <a id="zoomout_tool" tool="ZoomTool(1/1.5)" title="<?php echo get_string('zoomout_tool', 'chemillustrator'); ?>">
+                <img src="icons/zoomout.png"/></a>
             <input id="pan_tool" type="radio" name="tools"/><label for="pan_tool" tool="PanTool()" title="<?php echo get_string('pan_tool', 'chemillustrator'); ?>">
                 <img src="icons/pan.png"/></label>
             <input id="select_tool" type="radio" name="tools"/><label for="select_tool" tool="SelectTool()" title="<?php echo get_string('select_tool', 'chemillustrator'); ?>">
                 <img src="icons/select.png"/></label>
-            <a id="save_tool" for="save_tool" tool="SaveTool()" title="<?php echo get_string('save_tool', 'chemillustrator'); ?>">
+            <a id="save_tool" tool="SaveTool()" title="<?php echo get_string('save_tool', 'chemillustrator'); ?>">
                 <img src="icons/save.png"/></a>
-            <a id="open_tool" for="open_tool" tool="OpenTool()" title="<?php echo get_string('open_tool', 'chemillustrator'); ?>">
+            <a id="open_tool" tool="OpenTool()" title="<?php echo get_string('open_tool', 'chemillustrator'); ?>">
                 <img src="icons/open.png"/></a>
-            <a id="clear_tool" for="clear_tool" tool="ClearTool()" title="<?php echo get_string('clear_tool', 'chemillustrator'); ?>">
-                <img src="icons/clear.png"/></a>
-            <a id="reset_tool" for="reset_tool" tool="ResetTool()" title="<?php echo get_string('reset_view_tool', 'chemillustrator'); ?>">
+            <a id="reset_tool" tool="ResetTool()" title="<?php echo get_string('reset_view_tool', 'chemillustrator'); ?>">
                 <img src="icons/refresh.png"/></a>
+            <a id="clear_tool" tool="ClearTool()" title="<?php echo get_string('clear_tool', 'chemillustrator'); ?>">
+                <img src="icons/clear.png"/></a>
         </div>
 
         <canvas id="canvas"><?php echo get_string('nohtml5', 'chemillustrator'); ?></canvas>
 
-        <div id="TextPrompt" style="display:none;">
-            <input type="text" />
-        </div>
-
+        <!--Dialogs-->
         <div id="PeriodicTable" style="display:none;">
             <table>
                 <tr>
@@ -193,25 +178,35 @@ if (has_capability('mod/chemillustrator:view', $context)) {
                 </tr>
             </table>
         </div>
+        <div id="TextPrompt" style="display:none;">
+            <input type="text" />
+        </div>
 
         <script type="text/javascript">
-            var chemillustratorid = <?php echo $chemillustrator->id; ?>;
             $(function() {
-                $(window).resize(function() {
-                    $("#toolbar .subOpen").hide();
-                });
-
+                //Create the buttons
                 $("#toolbar").buttonset();
-                $("#toolbar .sub_menu label").click(function() {
-                    var parent = $(this).parent().prev();
-                    parent.attr('tool', $(this).attr('tool'));
-                    parent.attr('title', $(this).attr('title'));
-                    parent.find("img").attr('src', $(this).find("img").attr('src'));
-                });
+                $("#toolbar label, #toolbar a").click(function() {
+                    $("#toolbar .sub_menu").hide();
 
-                $("#toolbar .sub_tool").each(function () {
-                    $($(this).attr('menu')).children('label').first().click();
-                }).dblclick(function(event) {
+                    if ($(this).parent().hasClass("sub_menu")) {
+                        var parent = $(this).parent().prev();
+                        parent.attr('tool', $(this).attr('tool'));
+                        parent.attr('title', $(this).attr('title'));
+                        parent.find("img").attr('src', $(this).find("img").attr('src'));
+                    }
+
+                    var oldTool = currentTool;
+                    currentTool = eval('new ' + $(this).attr('tool'));
+
+                    if ($(this).is('a')) {
+                        currentTool.onSelected();
+                        currentTool = oldTool;
+                        redraw();
+                    }
+                });
+                //Open up the submenu
+                $("#toolbar .sub_tool").dblclick(function(event) {
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -219,30 +214,13 @@ if (has_capability('mod/chemillustrator:view', $context)) {
                         left: $(this).position().left,
                         top: $(this).position().top + 32
                     }).slideDown('fast');
+                }).each(function () {
+                    $($(this).attr('menu')).children('label').first().click();
                 });
 
-                $("#toolbar label, #toolbar a").click(function() {
-                    $("#toolbar .sub_menu").hide();
+                $("#bond_tool").next().click();
 
-                    if ($(this).attr('tool') != null) {
-                        currentTool = eval('new ' + $(this).attr('tool'));
-                        try {
-                            currentTool.onSelected();
-                        }
-                        catch(e) {}
-
-                    }
-                    else {
-                        currentTool = null;
-                    }
-
-                    redraw();
-                });
-
-                init();
-
-                $("#" + currentTool).click();
-
+                //Periodic Table
                 var elementInfo = {
                     'H': {name: '<?php echo get_string('H', 'chemillustrator'); ?>', mass: '1.00794', orbital: '1s1'},
                     'He': {name: '<?php echo get_string('He', 'chemillustrator'); ?>', mass: '4.002602', orbital: '1s2'},
@@ -332,28 +310,39 @@ if (has_capability('mod/chemillustrator:view', $context)) {
                     resizable: true,
                     autoOpen: false,
                     title: 'Enter new text',
-                    width: 800,
+                    width: 400,
                     buttons : {
                         Ok: function() {
+                            UndoTool.add();
+
                             if (selected instanceof Arrow) {
-                                selected.update(null, null, null, $(this).find("input").val());
+                                selected.update(null, null, null, null, $(this).find("input").val());
                             }
                             else if (selected instanceof Atom) {
-                                selected.element = $(this).find("input").val();
-                            }
-                            else if (selected instanceof TextBox) {
                                 selected.update(null, $(this).find("input").val());
                             }
+                            else if (selected instanceof Text) {
+                                selected.update(null, null, $(this).find("input").val());
+                            }
+
+
+                            redraw();
+
                             $(this).dialog("close");
                         }
                     }
+                }).keypress(function(e) {
+                    if (e.keyCode == $.ui.keyCode.ENTER) {
+                        $(this).parent().find("button").eq(0).click();
+                    }
                 });
+
+                init();
             });
         </script>
     </div>
     <?php
-}
-else {
+} else {
     echo $OUTPUT->box('Sorry, you do not have permissions to view this.', 'generalbox mod_introbox', 'chemillustratorintro');
 }
 // Finish the page
